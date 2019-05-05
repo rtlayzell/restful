@@ -5,6 +5,20 @@ using System.Threading.Tasks;
 
 namespace Restful.AspNetCore.Mvc.UnitTests
 {
+    public class CollectionController : RestController
+    {
+        [HttpGet]
+        public Task<IActionResult> GetCollectionItemById(int id)
+        {
+            throw new NotImplementedException();
+        }
+
+        internal object GetCollectionSingletonAsync(int id)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
     [Route("restful-unit-tests")]
     public class RestControllerTests : RestController
     {
@@ -19,7 +33,7 @@ namespace Restful.AspNetCore.Mvc.UnitTests
             };
 
             var min = 0;
-            var max = resources.Length - 1;
+            var max = resources.Length;
 
             return SingletonResource(new { Count = limit, Total = resources.Length })
                 .Link("find", r => GetResourceByIdAsync(Exp.Var<int>()))
@@ -28,7 +42,7 @@ namespace Restful.AspNetCore.Mvc.UnitTests
                 .Embed("students", () => CollectionResource(resources)
                     .Link("self", r => GetResourceByIdAsync(r.Id))
                     .Link("singleton", r => GetResourceSingletonAsync(r.Id))
-                    .Link("collection", r => GetResourceCollectionAsync(r.Id)));
+                    .Link("collection", r => GetResourceCollectionAsync(r.Id, default, default)));
         }
 
         [HttpGet("{id}")]
@@ -44,9 +58,22 @@ namespace Restful.AspNetCore.Mvc.UnitTests
         }
 
         [HttpGet("{id}/collection")]
-        public Task<IActionResult> GetResourceCollectionAsync(int id)
+        public async Task<IActionResult> GetResourceCollectionAsync(int id, int offset, int limit)
         {
-            throw new NotImplementedException();
+            var resources = new[]
+            {
+                new { Id = 1 },
+                new { Id = 2 },
+                new { Id = 3 },
+            };
+
+            c
+
+            return SingletonResource(new { Count = limit, Total = resources.Length })
+                .Link("find", r => Exp.Controller<CollectionController>().GetCollectionItemById(Exp.Var<int>()))
+                .Embed("collection", () => CollectionResource(resources)
+                    .Link("self", r => Exp.Controller<CollectionController>().GetCollectionItemById(r.Id))
+                    .Link("singleton", r => Exp.Controller<CollectionController>().GetCollectionSingletonAsync(r.Id)));
         }
     }
 }
